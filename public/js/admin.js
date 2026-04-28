@@ -1,0 +1,22 @@
+var Admin = {
+  async render(){
+    var c=document.getElementById('page-admin');
+    c.innerHTML='<div class="max-w-5xl mx-auto px-4 sm:px-6 py-12"><h2 style="font-family:\'Space Grotesk\';font-weight:700;font-size:36px;letter-spacing:-1px"><i class="fas fa-shield-alt mr-3" style="color:var(--accent)"></i>内容审核</h2><div class="flex gap-2 mt-6"><button class="tab-b active" onclick="Admin.switchTab(this,\'pending\')">待审核</button><button class="tab-b" onclick="Admin.switchTab(this,\'reported\')">被举报</button></div><div class="mt-6" id="adminList"></div></div>';
+    this.loadPending();
+  },
+  switchTab(btn,t){btn.parentElement.querySelectorAll('.tab-b').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');if(t==='pending')this.loadPending();else this.loadReported();},
+  async loadPending(){
+    var l=document.getElementById('adminList');l.innerHTML='<div class="text-center py-8"><div class="spinner"></div></div>';
+    try{var d=await Api.adminPending();if(!d.length){l.innerHTML='<div style="text-align:center;padding:48px;color:var(--muted)"><i class="fas fa-check-circle" style="font-size:48px;color:var(--success);margin-bottom:12px;display:block"></i>没有待审核的图片</div>';return;}
+    l.innerHTML=d.map(function(img){return '<div class="admin-card flex flex-col sm:flex-row gap-4"><img src="'+img.url+'" style="width:180px;height:120px;object-fit:cover;border-radius:8px;flex-shrink:0"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-2"><span style="font-weight:600;font-size:16px">'+img.title+'</span><span class="status-badge status-pending">待审核</span></div><div style="color:var(--muted);font-size:13px">上传者：'+img.uploader+' · '+new Date(img.created_at).toLocaleString('zh-CN')+'</div><div class="flex gap-2 mt-4"><button class="btn-a" onclick="Admin.approve('+img.id+')" style="padding:8px 20px;font-size:13px"><i class="fas fa-check mr-1"></i>通过</button><button class="btn-g" onclick="Admin.reject('+img.id+')" style="padding:8px 20px;font-size:13px;border-color:var(--danger);color:var(--danger)"><i class="fas fa-ban mr-1"></i>拒绝</button><button class="btn-g" onclick="Detail.open('+img.id+')" style="padding:8px 20px;font-size:13px"><i class="fas fa-eye mr-1"></i>查看</button></div></div></div>';}).join('');
+    }catch(e){l.innerHTML='<div style="color:var(--danger);text-align:center;padding:24px">'+e.message+'</div>';}
+  },
+  async loadReported(){
+    var l=document.getElementById('adminList');l.innerHTML='<div class="text-center py-8"><div class="spinner"></div></div>';
+    try{var d=await Api.adminReported();if(!d.length){l.innerHTML='<div style="text-align:center;padding:48px;color:var(--muted)"><i class="fas fa-thumbs-up" style="font-size:48px;color:var(--success);margin-bottom:12px;display:block"></i>没有被举报的图片</div>';return;}
+    l.innerHTML=d.map(function(img){return '<div class="admin-card flex flex-col sm:flex-row gap-4"><img src="'+img.url+'" style="width:180px;height:120px;object-fit:cover;border-radius:8px;flex-shrink:0"><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-2"><span style="font-weight:600;font-size:16px">'+img.title+'</span><span class="report-badge"><i class="fas fa-flag mr-1"></i>被举报</span></div><div style="color:var(--muted);font-size:13px">上传者：'+img.uploader+' · 举报人：'+img.reporter_name+'</div><div style="color:var(--danger);font-size:13px;margin-top:4px">举报原因：'+(img.report_reason||'未填写')+'</div><div class="flex gap-2 mt-4"><button class="btn-a" onclick="Admin.approve('+img.id+')" style="padding:8px 20px;font-size:13px"><i class="fas fa-check mr-1"></i>保留</button><button class="btn-g" onclick="Admin.reject('+img.id+')" style="padding:8px 20px;font-size:13px;border-color:var(--danger);color:var(--danger)"><i class="fas fa-ban mr-1"></i>下架</button></div></div></div>';}).join('');
+    }catch(e){l.innerHTML='<div style="color:var(--danger);text-align:center;padding:24px">'+e.message+'</div>';}
+  },
+  async approve(id){try{await Api.adminApprove(id);Toast.show('已通过','success');var a=document.querySelector('#page-admin .tab-b.active');if(a&&a.textContent.includes('举报'))this.loadReported();else this.loadPending();}catch(e){Toast.show(e.message,'error');}},
+  async reject(id){try{await Api.adminReject(id);Toast.show('已拒绝','info');var a=document.querySelector('#page-admin .tab-b.active');if(a&&a.textContent.includes('举报'))this.loadReported();else this.loadPending();}catch(e){Toast.show(e.message,'error');}}
+};

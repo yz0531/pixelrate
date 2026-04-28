@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelRate - 图片打分社区</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="bg-atm"></div>
+<div class="cl">
+<nav class="nav-g fixed top-0 left-0 right-0 z-50" id="navbar">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <a href="#" id="logoLink" class="flex items-center gap-3">
+      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#d4922e);display:flex;align-items:center;justify-content:center"><i class="fas fa-star" style="color:#0c0c0f;font-size:16px"></i></div>
+      <span style="font-family:'Space Grotesk';font-weight:700;font-size:20px;letter-spacing:-.5px">PixelRate</span>
+    </a>
+    <div class="hidden sm:flex items-center gap-1" id="navTabs"></div>
+    <div class="flex items-center gap-3" id="authArea"></div>
+  </div>
+  <div class="sm:hidden flex items-center justify-around py-2 border-t" style="border-color:var(--border)" id="navTabsMobile"></div>
+</nav>
+<div class="toast-c" id="toastC"></div>
+<main class="pt-20 sm:pt-16">
+  <section class="page-s active" id="page-home"></section>
+  <section class="page-s" id="page-rank"></section>
+  <section class="page-s" id="page-upload"></section>
+  <section class="page-s" id="page-profile"></section>
+  <section class="page-s" id="page-admin"></section>
+</main>
+<div class="modal-b" id="detailM"><div class="modal-c" style="max-width:680px;width:95%;max-height:90vh;overflow-y:auto"><div class="flex justify-between items-start mb-4"><h3 style="font-weight:700;font-size:20px" id="dTitle"></h3><button onclick="Modals.close('detailM')" style="color:var(--muted);font-size:20px;cursor:pointer;background:none;border:none;padding:4px"><i class="fas fa-times"></i></button></div><div id="dBody"></div></div></div>
+
+<div class="modal-b" id="loginM"><div class="modal-c">
+  <div class="flex justify-between items-center mb-6"><h3 style="font-weight:700;font-size:22px">欢迎回来</h3><button onclick="Modals.close('loginM')" style="color:var(--muted);font-size:20px;cursor:pointer;background:none;border:none"><i class="fas fa-times"></i></button></div>
+  <form onsubmit="Auth.doLogin(event)"><div class="space-y-4">
+    <div><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">手机号</label><input type="tel" class="input-f" id="lPhone" placeholder="输入手机号" maxlength="11" required></div>
+    <div><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">验证码</label><div class="flex gap-3"><input type="text" class="input-f" id="lCode" placeholder="6位验证码" maxlength="6" required style="flex:1"><button type="button" id="lSendBtn" class="btn-g" onclick="Auth.sendLoginCode()" style="white-space:nowrap;padding:10px 16px;font-size:14px;min-width:110px">获取验证码</button></div></div>
+    <div id="lErr" style="color:var(--danger);font-size:13px;display:none"></div>
+    <button type="submit" class="btn-a w-full" style="padding:14px;font-size:16px;margin-top:8px">登录</button>
+  </div></form>
+  <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:14px">还没有账号？<a href="#" onclick="Modals.close('loginM');Modals.open('regM')" style="color:var(--accent);text-decoration:none;font-weight:500">立即注册</a></div>
+</div></div>
+
+<div class="modal-b" id="regM"><div class="modal-c">
+  <div class="flex justify-between items-center mb-6"><h3 style="font-weight:700;font-size:22px">创建账号</h3><button onclick="Modals.close('regM')" style="color:var(--muted);font-size:20px;cursor:pointer;background:none;border:none"><i class="fas fa-times"></i></button></div>
+  <form onsubmit="Auth.doRegister(event)"><div class="space-y-4">
+    <div><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">用户名</label><input type="text" class="input-f" id="rUser" placeholder="3-20个字符" required minlength="3" maxlength="20"></div>
+    <div><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">手机号</label><input type="tel" class="input-f" id="rPhone" placeholder="输入手机号" maxlength="11" required></div>
+    <div><label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">验证码</label><div class="flex gap-3"><input type="text" class="input-f" id="rCode" placeholder="6位验证码" maxlength="6" required style="flex:1"><button type="button" id="rSendBtn" class="btn-g" onclick="Auth.sendRegCode()" style="white-space:nowrap;padding:10px 16px;font-size:14px;min-width:110px">获取验证码</button></div></div>
+    <div id="rErr" style="color:var(--danger);font-size:13px;display:none"></div>
+    <button type="submit" class="btn-a w-full" style="padding:14px;font-size:16px;margin-top:8px">注册</button>
+  </div></form>
+  <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:14px">已有账号？<a href="#" onclick="Modals.close('regM');Modals.open('loginM')" style="color:var(--accent);text-decoration:none;font-weight:500">去登录</a></div>
+</div></div>
+</div>
+<script src="/js/state.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/detail.js"></script>
+<script src="/js/rank.js"></script>
+<script src="/js/upload.js"></script>
+<script src="/js/profile.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

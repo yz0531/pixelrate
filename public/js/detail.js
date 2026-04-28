@@ -1,0 +1,14 @@
+var Detail = {
+  async open(id){
+    document.getElementById('dTitle').textContent='加载中...';document.getElementById('dBody').innerHTML='<div class="text-center py-8"><div class="spinner"></div></div>';Modals.open('detailM');
+    try{
+      var img=await Api.getImage(id);var ms=S.myRatings[img.id]||0;var dist=img.distribution||{};var total=img.ratingCount||1;
+      var dH=[5,4,3,2,1].map(function(s){var n=dist[s]||0;var p=((n/total)*100).toFixed(0);return '<div class="flex items-center gap-3" style="font-size:13px"><span style="width:20px;text-align:right;color:var(--muted)">'+s+'</span><i class="fas fa-star" style="color:var(--accent);font-size:11px"></i><div class="dist-bar flex-1"><div class="dist-fill" style="width:'+p+'%"></div></div><span style="width:36px;color:var(--muted)">'+n+'</span></div>';}).join('');
+      document.getElementById('dTitle').textContent=img.title;
+      document.getElementById('dBody').innerHTML='<img src="'+imgS(img,800,600)+'" alt="'+img.title+'" style="width:100%;max-height:50vh;object-fit:contain;border-radius:12px;margin-bottom:20px;background:var(--card)"><div class="flex flex-wrap items-center gap-3 mb-4"><span style="font-size:12px;color:var(--muted);background:var(--accent-dim);padding:3px 10px;border-radius:6px">'+img.categoryLabel+'</span><span style="font-size:13px;color:var(--muted)">上传者：'+img.uploader+'</span></div><div class="flex items-center gap-4 mb-5 p-4 rounded-xl" style="background:var(--card);border:1px solid var(--border)"><div class="text-center"><div style="font-family:\'Space Grotesk\';font-weight:700;font-size:42px;color:var(--accent)">'+img.avgScore+'</div><div style="font-size:12px;color:var(--muted)">平均分</div></div><div style="width:1px;height:50px;background:var(--border)"></div><div class="text-center"><div style="font-family:\'Space Grotesk\';font-weight:700;font-size:42px;color:var(--fg)">'+img.ratingCount+'</div><div style="font-size:12px;color:var(--muted)">评分人数</div></div><div class="flex-1 pl-4">'+dH+'</div></div><div class="mb-2" style="font-size:14px;font-weight:500">'+(S.currentUser?'你的评分':'登录后评分')+'</div><div class="star-r" id="dsr">'+[1,2,3,4,5].map(function(s){return '<span class="star'+(ms>=s?' active':'')+'" style="font-size:32px" onclick="Detail.rateR('+img.id+','+s+')" onmouseenter="Detail.pvD('+s+')" onmouseleave="Detail.rsD('+img.id+')" title="'+s+'分"><i class="fas fa-star"></i></span>';}).join('')+'</div>';
+    }catch(e){document.getElementById('dBody').innerHTML='<div style="color:var(--danger);text-align:center;padding:24px">'+e.message+'</div>';}
+  },
+  pvD(sc){document.querySelectorAll('#dsr .star').forEach(function(s,i){s.classList.toggle('active',i<sc);});},
+  rsD(iid){var ms=S.myRatings[iid]||0;document.querySelectorAll('#dsr .star').forEach(function(s,i){s.classList.toggle('active',i<ms);});},
+  async rateR(iid,sc){await Gallery.rate(iid,sc);this.open(iid);Gallery.loadImages();}
+};
